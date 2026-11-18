@@ -41,15 +41,29 @@ Supported: picomatch **4.0.7** and **2.3.2**, the latest release of each line
 (2.3.2 is what micromatch 4, chokidar 3, fast-glob 3 and anymatch use). Node 18+.
 Works with npm, Yarn classic and pnpm.
 
-### Add it to your `package.json` (recommended)
+### Install from npm (recommended)
 
-Nothing is copied into your project, and no `git` is needed. Add these two
-entries to your `package.json`:
+```sh
+npm install picomatch-redos-guard
+```
+
+Then add the hooks to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "postinstall": "picomatch-guard apply || exit 0",
+    "prebuild": "picomatch-guard apply --quiet || exit 0"
+  }
+}
+```
+
+Or add both entries by hand:
 
 ```json
 {
   "dependencies": {
-    "picomatch-redos-guard": "https://github.com/odapplications/picomatch-redos-guard/releases/download/v1.0.0/picomatch-redos-guard-1.0.0.tgz"
+    "picomatch-redos-guard": "^1.0.1"
   },
   "scripts": {
     "postinstall": "picomatch-guard apply || exit 0",
@@ -77,21 +91,19 @@ automatically, on your machine, in CI and in Docker builds:
 
 Notes:
 
-- **The URL is a fixed GitHub Release file.** npm stores its sha512 in your
-  `package-lock.json`, and `npm ci` refuses a file that doesn't match. To
-  upgrade later, change `v1.0.0` (twice) to the new release's version and run
-  `npm install`.
+- **Your `package-lock.json` pins the exact version and its sha512**, so
+  every `npm ci` installs the same bytes.
 - **Already have a `postinstall`?** Chain the two commands:
   `"postinstall": "your-existing-command && picomatch-guard apply"`.
 - **Keep it in `dependencies`, not `devDependencies`**, if any production
   install skips dev dependencies (`npm ci --omit=dev`, many Docker images).
   Otherwise the `picomatch-guard` command does not exist there. The package
   has no dependencies and is a 62 KB download.
-- **`npm install <url>` from the command line also works**, but npm doesn't run
-  your own `postinstall` when you add a single package. Run
-  `npx picomatch-guard apply` once after that.
-- **Yarn classic and pnpm** accept the same URL in `package.json`, and run the
-  root `postinstall` the same way.
+- **`npm install picomatch-redos-guard` doesn't run your own `postinstall`**
+  when it adds a single package. Run `npx picomatch-guard apply` once, or a
+  plain `npm install` after adding the hooks.
+- **Yarn classic and pnpm** work the same way (`yarn add` / `pnpm add`), and
+  run the root `postinstall` too.
 - **`apply` never fails an install.** It patches a file only when it is
   byte-for-byte the official one (sha256 in `patches/manifest.json`), checks the
   hash again after writing, and leaves anything unexpected alone with a warning.
@@ -104,10 +116,19 @@ Notes:
 To undo: run `npx picomatch-guard restore`, which puts the official file back
 (hash checked). Then remove the two scripts and the dependency.
 
+### Alternative: the GitHub Release file
+
+To avoid the npm registry, point the dependency at the release tarball
+instead. It's the same file that's on npm:
+
+```json
+"picomatch-redos-guard": "https://github.com/odapplications/picomatch-redos-guard/releases/download/v1.0.1/picomatch-redos-guard-1.0.1.tgz"
+```
+
 ### Alternative: install from the git repository
 
 ```sh
-npm install github:odapplications/picomatch-redos-guard#v1.0.0
+npm install github:odapplications/picomatch-redos-guard#v1.0.1
 npx picomatch-guard apply
 ```
 
@@ -318,7 +339,7 @@ No dependency and no `git` needed at install time:
 ### One-off, without adding anything
 
 ```sh
-npx --yes https://github.com/odapplications/picomatch-redos-guard/releases/download/v1.0.0/picomatch-redos-guard-1.0.0.tgz apply
+npx --yes picomatch-redos-guard apply
 ```
 
 This lasts until the next `npm install` replaces the files.

@@ -1,6 +1,6 @@
 {
   "name": "picomatch-redos-guard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Drop-in hardening for picomatch: globs that would backtrack exponentially (ReDoS) are matched as literal text instead of freezing the process.",
   "license": "MIT",
   "repository": {
