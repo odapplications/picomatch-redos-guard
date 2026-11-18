@@ -71,4 +71,5 @@ const runOne = () => new Promise(resolve => {
   await Promise.all(Array.from({ length: n }, runOne));
   console.log(`${list.length} patterns x ${inputsFor().length} inputs x 5 option sets, budget ${budget}ms: ${slow.length} slow (${Math.round((Date.now() - t) / 1000)} s)`);
   if (slow.length) console.log(slow.slice(0, 40).join('\n'));
+  if (slow.length) process.exitCode = 1;
 })();

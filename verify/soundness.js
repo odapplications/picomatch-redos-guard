@@ -55,3 +55,4 @@ for (const [label, src, flags, unit, end] of cases) {
   console.log(`${label.padEnd(24)} V8: ${(hangs ? 'HANGS' : c.stdout.trim() + ' ms').padEnd(7)} analyzer: ${String(flagged).padEnd(6)} -> ${verdict}`);
 }
 console.log(`\n${misses} misses`);
+if (misses) process.exitCode = 1;

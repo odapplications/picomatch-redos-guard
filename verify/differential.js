@@ -41,6 +41,7 @@ for (const p of pats) {
   }
 }
 console.log(`no-extglob corpus: ${compared} pattern/option pairs compared, ${diffs.length} differ`);
+if (diffs.length) process.exitCode = 1;
 for (const d of diffs.slice(0, 20)) console.log(JSON.stringify(d));
 
 const realWorld = [
@@ -58,3 +59,11 @@ for (const p of realWorld) for (const o of optionSets) {
 }
 console.log(`real-world globs: ${realWorld.length * optionSets.length} pairs compared, ${rwDiffs.length} differ`);
 for (const d of rwDiffs) console.log('  ' + d);
+// The one intended difference: under noextglob, Jest's default testMatch is
+// itself a ReDoS on the official copy (60 repeats of "a." take minutes).
+const expected = ['**/?(*.)+(spec|test).[jt]s?(x) {"noextglob":true}'];
+const unexpected = rwDiffs.filter(d => !expected.includes(d.split('\n')[0]));
+if (unexpected.length) {
+  console.log(`${unexpected.length} unexpected real-world differences`);
+  process.exitCode = 1;
+}

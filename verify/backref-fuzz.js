@@ -53,4 +53,5 @@ const one = () => new Promise(resolve => {
   await Promise.all(Array.from({ length: 8 }, async () => { while (await one()); }));
   console.log(`${jobs.length} backreference regexes: ${hangs} hang in V8, ${misses.length} of those NOT flagged (misses), ${flaggedSafe} flagged but finished with these inputs`);
   for (const m of misses.slice(0, 30)) console.log('   MISS', m);
+  if (misses.length) process.exitCode = 1;
 })();

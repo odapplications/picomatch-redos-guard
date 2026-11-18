@@ -32,6 +32,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "test": "node verify/prepare.mjs && node --test test/cli.test.mjs",
     "verify:prepare": "node verify/prepare.mjs",
     "verify": "node verify/run-all.mjs",
     "verify:recheck": "node verify/recheck.js"

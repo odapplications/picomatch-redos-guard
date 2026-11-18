@@ -1,5 +1,9 @@
 # picomatch-redos-guard
 
+[![CI](https://github.com/odapplications/picomatch-redos-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/odapplications/picomatch-redos-guard/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/picomatch-redos-guard)](https://www.npmjs.com/package/picomatch-redos-guard)
+[![license](https://img.shields.io/npm/l/picomatch-redos-guard)](LICENSE)
+
 **Defence-in-depth hardening for [picomatch](https://github.com/micromatch/picomatch).**
 Some glob patterns compile to regular expressions that take exponential time
 (ReDoS): one bad pattern and a short string can freeze a Node.js process for
@@ -34,6 +38,7 @@ picomatch.isMatch('a'.repeat(28) + '/', '+(*a)'); // 20.4 s; every 2 more charac
 - [Other ways to use it](#other-ways-to-use-it)
 - [Commands](#commands)
 - [History](#history)
+- [Contributing and releases](#contributing-and-releases)
 
 ## Quick start
 
@@ -386,6 +391,23 @@ micromatch/picomatch#275, which was closed when the advisory was withdrawn.
 This project was built with AI assistance ([Claude Code](https://claude.com/claude-code)).
 Every claim above is backed by a script in [`verify/`](verify/) that you can
 run yourself.
+
+## Contributing and releases
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md), and report
+security problems privately as described in [SECURITY.md](SECURITY.md).
+
+- **`main` only changes through pull requests that pass CI.** CI runs:
+  - tests on Linux, Windows and macOS, with Node 18 to 24;
+  - every script in `verify/`;
+  - picomatch's own suite with the upstream patch applied.
+- **Releases are automatic.** A merged pull request that bumps the version in
+  `package.json` is tested again, then published to npm by GitHub Actions
+  through npm trusted publishing:
+  - no npm token is stored anywhere;
+  - every version carries a provenance statement linking it to the exact commit
+    that built it;
+  - the same tarball is attached to the matching GitHub Release.
 
 ## License
 

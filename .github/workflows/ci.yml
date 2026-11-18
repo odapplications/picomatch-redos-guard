@@ -1,0 +1,90 @@
+# Every pull request and every push to main must pass this workflow
+# ("CI passed" is the required status check on main). The release workflow
+# calls it again before publishing.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, node ${{ matrix.node }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [18, 20, 22, 24]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Download official picomatch and check its integrity
+        run: node verify/prepare.mjs
+      - name: CLI and analyzer tests
+        run: node --test test/cli.test.mjs
+
+  verify:
+    name: verification (fuzzers, differential, soundness)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: node verify/prepare.mjs
+      - name: Run every check in verify/
+        run: node verify/run-all.mjs
+        env:
+          FUZZ_BUDGET_MS: '2000'
+
+  upstream-patch:
+    name: upstream patch (picomatch's own suite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Apply upstream/ to picomatch and run its tests and lint
+        run: |
+          git clone --quiet https://github.com/micromatch/picomatch.git "$RUNNER_TEMP/picomatch"
+          cd "$RUNNER_TEMP/picomatch"
+          git checkout --quiet 9fab7bf61913ea334c4203ed321c426cfde44a42
+          git -c user.name=ci -c user.email=ci@invalid.example am --quiet "$GITHUB_WORKSPACE"/upstream/*.patch
+          npm install --no-audit --no-fund --ignore-scripts
+          npm test
+          npm run lint
+
+  ci-ok:
+    name: CI passed
+    if: always()
+    needs: [test, verify, upstream-patch]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All jobs succeeded
+        run: |
+          echo "results: ${{ join(needs.*.result, ' ') }}"
+          test "${{ needs.test.result }}" = success
+          test "${{ needs.verify.result }}" = success
+          test "${{ needs.upstream-patch.result }}" = success
