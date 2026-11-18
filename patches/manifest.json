@@ -1,0 +1,22 @@
+{
+  "lines": {
+    "2": "2.3.2",
+    "4": "4.0.7"
+  },
+  "versions": {
+    "4.0.7": {
+      "patched": "4.0.7/parse.js",
+      "official": "official/4.0.7/parse.js",
+      "officialSha256": "4e1e05447668aa1e94366c5516a2bcd8f5fff800cc92b1d0cd7d77703b8618c4",
+      "patchedSha256": "9ec76e0672ac4b4a2913d15ad7516f40c1a76b0e14bc72ac63eec3b010a03852",
+      "officialTarballIntegrity": "sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA=="
+    },
+    "2.3.2": {
+      "patched": "2.3.2/parse.js",
+      "official": "official/2.3.2/parse.js",
+      "officialSha256": "3a91656f440069aa8f8e15c9d695b9f6b2209df1eab2be8127c72cbcca45ff5f",
+      "patchedSha256": "0431ca790459afbd587f21723da6aaa7172b3a15d894d6a30ad9e6ddeceb2f83",
+      "officialTarballIntegrity": "sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA=="
+    }
+  }
+}

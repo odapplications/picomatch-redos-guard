@@ -1,0 +1,39 @@
+{
+  "name": "picomatch-redos-guard",
+  "version": "1.0.0",
+  "description": "Drop-in hardening for picomatch: globs that would backtrack exponentially (ReDoS) are matched as literal text instead of freezing the process.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odapplications/picomatch-redos-guard.git"
+  },
+  "keywords": [
+    "picomatch",
+    "redos",
+    "glob",
+    "regex",
+    "security",
+    "hardening",
+    "backtracking"
+  ],
+  "type": "commonjs",
+  "main": "lib/ambiguity.js",
+  "bin": {
+    "picomatch-guard": "bin/picomatch-guard.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "patches/",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "verify:prepare": "node verify/prepare.mjs",
+    "verify": "node verify/run-all.mjs",
+    "verify:recheck": "node verify/recheck.js"
+  }
+}

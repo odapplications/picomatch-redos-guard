@@ -1,0 +1,4 @@
+# The guard checks sha256 hashes of the files under patches/: keep their bytes exact.
+* text=auto eol=lf
+patches/** -text
+upstream/*.patch -text
