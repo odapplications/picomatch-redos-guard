@@ -387,6 +387,8 @@ micromatch/picomatch#275, which was closed when the advisory was withdrawn.
   this one. Every finding is now part of the tests and the self-test.
 - **2026-11-18:** the advisory was withdrawn, and the upstream PR was closed.
   This repo was published so anyone who wants the protection can have it.
+- **1.0.2:** the first release published by the release workflow (npm trusted
+  publishing, with provenance). No code changes since 1.0.0.
 
 This project was built with AI assistance ([Claude Code](https://claude.com/claude-code)).
 Every claim above is backed by a script in [`verify/`](verify/) that you can
