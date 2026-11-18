@@ -41,41 +41,78 @@ Supported: picomatch **4.0.7** and **2.3.2**, the latest release of each line
 (2.3.2 is what micromatch 4, chokidar 3, fast-glob 3 and anymatch use). Node 18+.
 Works with npm, Yarn classic and pnpm.
 
-```sh
-npm install github:odapplications/picomatch-redos-guard#v1.0.0
-npx picomatch-guard apply      # once now; installing a package does not run your own postinstall
-npx picomatch-guard selftest   # proves it: 24 attacks finish, ordinary globs unchanged
-```
+### Add it to your `package.json` (recommended)
 
-Then add the hook to your `package.json` so every later install is patched:
+Nothing is copied into your project, and no `git` is needed. Add these two
+entries to your `package.json`:
 
 ```json
 {
+  "dependencies": {
+    "picomatch-redos-guard": "https://github.com/odapplications/picomatch-redos-guard/releases/download/v1.0.0/picomatch-redos-guard-1.0.0.tgz"
+  },
   "scripts": {
-    "postinstall": "picomatch-guard apply"
+    "postinstall": "picomatch-guard apply || exit 0",
+    "prebuild": "picomatch-guard apply --quiet || exit 0"
   }
 }
 ```
 
+Then run a plain install:
+
+```sh
+npm install                    # downloads the guard, then postinstall patches picomatch
+npx picomatch-guard selftest   # optional proof: 24 attacks finish, ordinary globs unchanged
+```
+
+From then on, every `npm install` and `npm ci` patches picomatch
+automatically, on your machine, in CI and in Docker builds:
+
+- **Docker:** this works even when the image copies only
+  `package.json` / `package-lock.json` before `npm ci`, because the guard is
+  in `node_modules` by the time `postinstall` runs.
+- **Your build log** shows `[picomatch-guard] patched 2 copies: ...`.
+- **`prebuild`** is optional. It is a second chance for an install that ran
+  with `--ignore-scripts`. Leave it out if your project has no `build` script.
+
 Notes:
 
-- **Install it as a regular dependency, not a dev dependency**, if your
-  production install skips dev dependencies (`npm ci --omit=dev`, many Docker
-  images). Otherwise the `postinstall` command does not exist there and the
-  install fails. The package has no dependencies and is a 62 KB download.
-- **The `github:` install needs `git`** in the environment (some slim Docker
-  images lack it). If that is a problem, use the [copy-in option](#copy-the-files-into-your-repo).
-- `apply` never fails an install. It patches a file only when it is
+- **The URL is a fixed GitHub Release file.** npm stores its sha512 in your
+  `package-lock.json`, and `npm ci` refuses a file that doesn't match. To
+  upgrade later, change `v1.0.0` (twice) to the new release's version and run
+  `npm install`.
+- **Already have a `postinstall`?** Chain the two commands:
+  `"postinstall": "your-existing-command && picomatch-guard apply"`.
+- **Keep it in `dependencies`, not `devDependencies`**, if any production
+  install skips dev dependencies (`npm ci --omit=dev`, many Docker images).
+  Otherwise the `picomatch-guard` command does not exist there. The package
+  has no dependencies and is a 62 KB download.
+- **`npm install <url>` from the command line also works**, but npm doesn't run
+  your own `postinstall` when you add a single package. Run
+  `npx picomatch-guard apply` once after that.
+- **Yarn classic and pnpm** accept the same URL in `package.json`, and run the
+  root `postinstall` the same way.
+- **`apply` never fails an install.** It patches a file only when it is
   byte-for-byte the official one (sha256 in `patches/manifest.json`), checks the
   hash again after writing, and leaves anything unexpected alone with a warning.
   It makes no network requests.
-- An older picomatch (for example 4.0.6 or 2.3.1) is reported, not patched.
-  Update it with `npm update picomatch`, or force it with an
+- **Older picomatch versions** (for example 4.0.6 or 2.3.1) are reported, not
+  patched. Update with `npm update picomatch`, or force a version with an
   [`overrides`](https://docs.npmjs.com/cli/configuring-npm/package-json#overrides)
-  entry, then run `apply` again.
+  entry, then run `npm install` again.
 
-To undo: `npx picomatch-guard restore` puts the official file back (hash
-checked). Then remove the `postinstall` hook and the dependency.
+To undo: run `npx picomatch-guard restore`, which puts the official file back
+(hash checked). Then remove the two scripts and the dependency.
+
+### Alternative: install from the git repository
+
+```sh
+npm install github:odapplications/picomatch-redos-guard#v1.0.0
+npx picomatch-guard apply
+```
+
+This needs `git` wherever you install, and some slim Docker images lack it.
+Add the same `postinstall` script as above.
 
 ## Is this a vulnerability?
 
@@ -281,7 +318,7 @@ No dependency and no `git` needed at install time:
 ### One-off, without adding anything
 
 ```sh
-npx --yes github:odapplications/picomatch-redos-guard#v1.0.0 apply
+npx --yes https://github.com/odapplications/picomatch-redos-guard/releases/download/v1.0.0/picomatch-redos-guard-1.0.0.tgz apply
 ```
 
 This lasts until the next `npm install` replaces the files.
