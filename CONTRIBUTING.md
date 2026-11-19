@@ -70,6 +70,13 @@ merged, the release workflow:
 
 Nobody publishes by hand.
 
+**Docs-only changes** (README, CONTRIBUTING, workflows, tests) go through the
+same pull request and CI, but publish nothing as long as `version` stays the
+same. GitHub shows the new README as soon as it's merged. npmjs.com shows the
+README inside the latest published package, so it catches up with the next
+release. Keep install instructions version-independent (`^1.0.0`, `vX.Y.Z`),
+so they never go stale after a release.
+
 ## AI-assisted contributions
 
 They're welcome, under the same rules: every claim in the PR must be backed by
