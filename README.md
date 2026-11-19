@@ -68,7 +68,7 @@ Or add both entries by hand:
 ```json
 {
   "dependencies": {
-    "picomatch-redos-guard": "^1.0.1"
+    "picomatch-redos-guard": "^1.0.0"
   },
   "scripts": {
     "postinstall": "picomatch-guard apply || exit 0",
@@ -96,8 +96,9 @@ automatically, on your machine, in CI and in Docker builds:
 
 Notes:
 
-- **Your `package-lock.json` pins the exact version and its sha512**, so
-  every `npm ci` installs the same bytes.
+- **`^1.0.0` means the newest 1.x.** Your `package-lock.json` pins the exact
+  version and its sha512, so every `npm ci` installs the same bytes. Run
+  `npm update picomatch-redos-guard` to move to a newer release.
 - **Already have a `postinstall`?** Chain the two commands:
   `"postinstall": "your-existing-command && picomatch-guard apply"`.
 - **Keep it in `dependencies`, not `devDependencies`**, if any production
@@ -123,19 +124,30 @@ To undo: run `npx picomatch-guard restore`, which puts the official file back
 
 ### Alternative: the GitHub Release file
 
-To avoid the npm registry, point the dependency at the release tarball
-instead. It's the same file that's on npm:
+To avoid the npm registry, point the dependency at a release tarball
+instead. Every [GitHub Release](https://github.com/odapplications/picomatch-redos-guard/releases)
+has one attached, and it's the same file as on npm:
 
 ```json
-"picomatch-redos-guard": "https://github.com/odapplications/picomatch-redos-guard/releases/download/v1.0.1/picomatch-redos-guard-1.0.1.tgz"
+"picomatch-redos-guard": "https://github.com/odapplications/picomatch-redos-guard/releases/download/vX.Y.Z/picomatch-redos-guard-X.Y.Z.tgz"
 ```
+
+- **Replace both `X.Y.Z`** with the version of the
+  [latest release](https://github.com/odapplications/picomatch-redos-guard/releases/latest).
+  The npm badge at the top of this page shows it too.
+- **Always use a versioned link,** not a "latest" one. Your lockfile records
+  the file's sha512, so a link whose file changes with each release would make
+  `npm ci` fail.
+- **To upgrade,** change the version in the link and run `npm install`.
 
 ### Alternative: install from the git repository
 
 ```sh
-npm install github:odapplications/picomatch-redos-guard#v1.0.1
+npm install "github:odapplications/picomatch-redos-guard#semver:^1.0.0"
 npx picomatch-guard apply
 ```
+
+`#semver:^1.0.0` picks the newest `v1.x` release tag.
 
 This needs `git` wherever you install, and some slim Docker images lack it.
 Add the same `postinstall` script as above.
